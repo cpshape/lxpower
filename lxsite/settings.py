@@ -76,9 +76,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'lvpower',
-         'USER':'root',
-        'PASSWORD':'pass0099',
-        'HOST': '',
+        'USER':'website',
+        'PASSWORD':'dajiaoyin_20151016',
+        'HOST':'rdsz951b51bo7mxf1s2n.mysql.rds.aliyuncs.com',
         'PORT':'3306',
     }
 }
