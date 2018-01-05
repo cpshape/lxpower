@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+{% block title %}概况{% endblock %}
+
+
+{% block css %}
+<script src="https://cdn.bootcss.com/echarts/3.8.5/echarts.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <div>
+     <h3><span class="label label-primary"> 需求对比 </span></h3>
+      {{ request.session.chart_reque |safe}}
+
+     <h3><span class="label label-primary"> 车辆概况 </span></h3>
+      {{ request.session.chart_auto |safe}}
+
+    <h3><span class="label label-primary"> 客户概况 </span></h3>
+      {{ request.session.chart_cust |safe}}
+
+  </div>
+{% endblock %}

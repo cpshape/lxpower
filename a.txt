@@ -1,0 +1,41 @@
+  window.operateEvents = {
+        'click .like': function (e, value, row, index) {
+            caridd = row.car_name;
+        },
+        'click .remove': function (e, value, row, index) {
+            $table.bootstrapTable('remove', {
+                field: 'car_id',
+                values: [row.car_id]
+            });
+        }
+    };
+
+     function operateFormatter(value, row, index) {
+        return [
+            '<a class="like" href="javascript:void(0)"  title="车辆入场">',
+            '<i class="icon-key"></i>',
+            '</a>  ',
+            '<a class="remove" href="javascript:void(0)" title="分配归属">',
+            '<i class="icon-sitemap"></i>',
+            '</a>'
+        ].join('');
+    }
+/*
+     function numFormatter(value, row, index) {
+         return[
+             '<a class="remove" href="javascript:void(0)" title="添加车牌">',
+             '<i class="icon-plus"></i>',
+             '</a>'
+         ].join('');
+     }   */
+
+    function queryParams(params) {
+      //  if (caridd>0)
+       //     params.key1 = caridd;
+      //  else
+            params.key1 = caridd;
+
+                // console.log(JSON.stringify(params));
+        // {"limit":10,"offset":0,"order":"asc","your_param1":1,"your_param2":2}
+        return params;
+    }

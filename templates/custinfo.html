@@ -1,0 +1,356 @@
+{% extends 'index.html' %}
+{% block title %}客户{% endblock %}
+
+
+{% block css %}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+{% endblock %}
+
+{% block content %}
+    <div class="panel-group" id="accordion">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">客户跟单情况</a></h4>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <table id="cstTbl"
+                       class="table table-hover table-sm table-condensed"
+                       data-method="get"
+                       data-height="520"
+                       data-side-pagination="server"
+                       data-pagination="true"
+                       data-page-size="10"
+                       data-page-list="[5, 10, 50]"
+                       data-query-params="qPara1"
+                >
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">已交车客户</a></h4>
+        </div>
+        <div id="collapseTwo" class="panel-collapse collapse">
+            <div class="panel-body">
+                <table id="myjTbl"
+                       class="table table-hover table-sm table-condensed"
+                       data-method="get"
+                       data-height="520"
+                       data-side-pagination="server"
+                       data-pagination="true"
+                       data-page-size="10"
+                       data-page-list="[5, 10, 50]"
+                       data-query-params="qPara2"
+                >
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="renCoM" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="badge pull-right" id="staffid">42</span>
+                    <h4 class="modal-title">分配跟单经理</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group" class="form-inline">
+                            <select class="selectpicker form-control" id="stfInput">
+
+                            </select>
+                        </div>
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default" onclick="reCust()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="dcsDetail" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">客户处理日志</h4>
+                </div>
+                <div class="modal-body">
+                    <table id="cdtlTbl"
+                           data-toggle="table"
+                           class="table table-hover table-sm table-condensed"
+                    >
+                        <thead>
+                        <tr>
+                            <th data-field="c_item" data-align="center" datavalign="middle" data-width="5">序号</th>
+                            <th data-field="c_desc" datavalign="middle" data-align="left">描述</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">关闭</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+{% endblock %}
+
+{% block js %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/i18n/defaults-zh_CN.min.js"></script>
+
+    <script>
+        var $csttable = $('#cstTbl'),
+            $myjtable = $('#myjTbl'),
+         $cdtlTbl = $('#cdtlTbl');
+
+        function initTable() {
+            $csttable.bootstrapTable({
+                url: '/custinfo/getCstls/',
+                columns: [
+                    {
+                        field: 'ddd',
+                        align: 'center',
+                        valign: 'middle',
+                        events: operateEvents,
+                        formatter: operateFormatter
+                    },{
+                        field: 'cust_id',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '编号'
+                    }, {
+                        field: 'cust_name',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '姓名'
+                    }, {
+                        field: 'cust_tel1',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话一'
+                    }, {
+                        field: 'cust_tel2',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话二'
+                    }, {
+                        field: 'cust_staff',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '跟单专员'
+                    }, {
+                        field: 'cust_sta',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '当前状态'
+                    }, {
+                        field: 'cust_data',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '建档日期'
+                    }, {
+                        field: 'operate',
+                        title: '操作',
+                        align: 'center',
+                        events: custEvents,
+                        formatter: custFormatter
+                    }]
+            });
+
+            $myjtable.bootstrapTable({
+                url: '/custinfo/getCstls/',
+                columns: [
+                    {
+                        field: 'ddd',
+                        align: 'center',
+                        valign: 'middle',
+                        events: operateEvents,
+                        formatter: operateFormatter
+                    },{
+                        field: 'cust_id',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '编号'
+                    }, {
+                        field: 'cust_name',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '姓名'
+                    }, {
+                        field: 'cust_tel1',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话一'
+                    }, {
+                        field: 'cust_tel2',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话二'
+                    }, {
+                        field: 'cust_staff',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '跟单专员'
+                    }, {
+                        field: 'cust_car_id',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车辆编号'
+                    }, {
+                        field: 'cust_car',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车牌'
+                    },  {
+                        field: 'cust_cont',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '合同号'
+                    }, {
+                        field: 'cust_car_date',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '交车日期'
+                    },  {
+                        field: 'cust_data',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '建档日期'
+                    }]
+            });
+        }
+
+        function custFormatter(value, row, index) {
+            return [
+                '<a class="renCo" href="javascript:void(0)" title="重新分配">',
+                '<i class="icon-sitemap icon-large" id="caa' + index + '"></i>',
+                '</a>   ',
+            ].join('');
+        }
+
+        window.custEvents = {
+            'click .renCo': function (e, value, row, index) {
+                document.getElementById('staffid').innerText = row.cust_id;
+                $('#renCoM').modal({
+                    backdrop: false,
+                    keyboard: false
+                })
+            }
+        }
+
+        $('#stfInput').on('show.bs.select', function (e) {
+            $.ajax({
+                type: 'get',
+                url: '/custinfo/getstf/',
+                dataType: 'json',
+                success: function (data) {
+                    $('#stfInput').html("");
+                    $('#stfInput').append("<option value=''>-- 请选择 --</option>");
+                    $.each(data, function (i, n) {
+                        $('#stfInput').append("<option value='" + n.id + "'>" + n.name + "</option>");
+                    });
+                    $('#stfInput').selectpicker('refresh');
+                }
+            })
+        });
+
+        function reCust() {
+            if ($('#stfInput').selectpicker('val') == '') {
+                alert('请选择跟单经理');
+            } else {
+                $.ajax({
+                    type: 'get',
+                    url: '/custinfo/saveCust/',
+                    dataType: 'json',
+                    data: {
+                        'dcst_tye': 2,
+                        'dcst_name': document.getElementById('staffid').innerText,
+                        'dcst_tel1': $('#stfInput').selectpicker('val'),
+                        'dcst_tel2': ''
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $csttable.bootstrapTable('refresh');
+                                $('#renCoM').modal('hide');
+                            } else {
+                                alert('分配客户出错，请联系管理员！')
+                            }
+                        })
+                    }
+                })
+            }
+        }
+
+         function operateFormatter(value, row, index) {
+            return [
+                '<a class="cstTail" href="javascript:void(0)" title="点击查看处理日志">',
+                '<i class="icon-fullscreen" id="bb' + index + '"></i>',
+                '</a>',
+            ].join('');
+        }
+
+        window.operateEvents = {
+            'click .cstTail': function (e, value, row, index) {
+                $.ajax({
+                    type: 'get',
+                    url: '/custinfo/getCstlog/',
+                    dataType: 'json',
+                    data: {
+                        'dcust_id': row.cust_id
+                    },
+                    success: function (data) {
+                        $cdtlTbl.bootstrapTable('load', data);
+                    }
+                })
+                ;
+                $('#dcsDetail').modal({
+                    keyboard: false
+                });
+            },
+            'mouseenter .cstTail': function (e, value, row, index) {
+                obj = '#bb' + index;
+                $(obj).attr('class', 'icon-fullscreen icon-spin');
+            },
+            'mouseleave .cstTail': function (e, value, row, index) {
+                obj = '#bb' + index;
+                $(obj).attr('class', 'icon-fullscreen');
+            }
+        };
+
+
+        function qPara1(params) {
+            params.lstty = 1;
+            return params;
+        }
+
+        function qPara2(params) {
+            params.lstty = 2;
+            return params;
+        }
+
+        $(function () {
+            initTable();
+        });
+
+
+    </script>
+
+{% endblock %}

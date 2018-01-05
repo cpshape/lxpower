@@ -1,0 +1,1118 @@
+{% extends 'index.html' %}
+{% block title %}车辆{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+{% endblock %}
+
+{% block content %}
+
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">可选车辆</a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div id="toolbar">
+                        <button id="jieche" class="btn btn-info" disabled>
+                            <i class="icon-key"></i> 接车
+                        </button>
+
+                        <button id="ruku" class="btn btn-info" disabled>
+                            <i class="icon-road"></i> 入库
+                        </button>
+
+                        <button id="weixiu" class="btn btn-info" disabled>
+                            <i class="icon-cogs"></i> 维修
+                        </button>
+                    </div>
+
+                    <table id="table"
+                           class="table table-hover table-sm table-condensed"
+                           data-toolbar="#toolbar"
+                           data-method="get"
+                           data-height="520"
+                           data-side-pagination="server"
+                           data-pagination="true"
+                           data-page-size="10"
+                           data-page-list="[5, 10, 50]"
+                           data-query-params="cPara1"
+                    >
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">新车采购</a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+                <div class="panel-body">
+
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <span>品牌: </span>
+                            <select class="selectpicker" id="brandInput" data-live-search="true">
+                            </select>
+                        </div>
+
+                        <div class="form-group" class="center-block">
+                            <span>产品: </span>
+                            <select class="selectpicker" id="prodInput" data-live-search="true">
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <span>型号: </span>
+                            <select class="selectpicker" id="seriesInput" data-live-search="true">
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <span>数量: </span>
+                            <input id="carsnum" class="form-control w70" type="number" value="5">
+                        </div>
+
+
+                        <a id="ok" class="btn btn-default pull-right" onclick="carsBuy()" role="button">OK</a>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapsefour">已交车辆</a>
+                </h4>
+            </div>
+            <div id="collapsefour" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table id="jtable"
+                           class="table table-hover table-sm table-condensed"
+                           data-method="get"
+                           data-height="520"
+                           data-side-pagination="server"
+                           data-pagination="true"
+                           data-page-size="10"
+                           data-page-list="[5, 10, 50]"
+                           data-query-params="cPara2"
+                    >
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion"
+                                           href="#collapseThree">回收车入库</a>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse">
+                <div class="panel-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dspDetail" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">车辆详细信息</h4>
+                </div>
+                <div class="modal-body">
+                    <table id="datilTbl"
+                           data-toggle="table"
+                           class="table table-hover table-sm table-condensed"
+                    >
+                        <thead>
+                        <tr>
+                            <th data-field="d_name" data-align="center" datavalign="middle" data-width="80">名称</th>
+                            <th data-field="d_item" data-align="center" datavalign="middle" data-width="5">序号</th>
+                            <th data-field="d_desc" datavalign="middle" data-align="left">描述</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">关闭</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="addCarnum" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="badge pull-right" id="carnumtitle">42</span>
+                    <h4 class="modal-title">请输入车牌号</h4>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <form>
+                        <div class="form-group" class="form-inline">
+                            <select class="selectpicker form-control" id="provInput">
+                                <option>粤</option>
+                                <option>鄂</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" class="center-block">
+                            <select class="selectpicker form-control" id="alInput" data-live-search="true">
+                                <option>A</option>
+                                <option>B</option>
+                                <option>C</option>
+                                <option>D</option>
+                                <option>E</option>
+                                <option>F</option>
+                                <option>G</option>
+                                <option>H</option>
+                                <option>I</option>
+                                <option>J</option>
+                                <option>K</option>
+                                <option>L</option>
+                                <option>M</option>
+                                <option>N</option>
+                                <option>O</option>
+                                <option>P</option>
+                                <option>Q</option>
+                                <option>R</option>
+                                <option>S</option>
+                                <option>T</option>
+                                <option>U</option>
+                                <option>V</option>
+                                <option>W</option>
+                                <option>X</option>
+                                <option>Y</option>
+                                <option>Z</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div >
+                                <input id="carnum" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default" onclick="savNum()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="addColor" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="badge pull-right" id="carnum3">42</span>
+                    <h4 class="modal-title">请选择颜色</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group" class="form-inline">
+                            <select class="selectpicker form-control" id="colorInput">
+
+                            </select>
+                        </div>
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default" onclick="saveColor()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="addDpt" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="badge pull-right" id="carnum4">42</span>
+                    <h4 class="modal-title">请选择归属部门</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group" class="form-inline">
+                            <select class="selectpicker form-control" id="dptInput">
+
+                            </select>
+                        </div>
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default" onclick="saveDpt()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="addSit" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="badge pull-right" id="carnum5">42</span>
+                    <h4 class="modal-title">请选择停放场地</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group" class="form-inline">
+                            <select class="selectpicker form-control" id="sitInput">
+
+                            </select>
+                        </div>
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default" onclick="saveSit()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="addCust" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="badge pull-right" id="carnum7">42</span>
+                    <h4 class="modal-title">请选择交车客户</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="custInput" class="col-sm-4 control-label">客户</label>
+                            <div class="col-xs-8">
+                                <select class="selectpicker form-control" id="custInput">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contract" class="col-sm-4 control-label">合同编号</label>
+                            <div class="col-xs-8">
+                                <input id="contract" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default" onclick="saveCust()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="addDoc" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="badge pull-right" id="carnum6">42</span>
+                    <h4 class="modal-title" id="doct">'请输资料信息</h4>
+                </div>
+
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="docty" class="col-sm-4 control-label">资料编号</label>
+                            <div class="col-xs-8">
+                                <input id="docty" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="docst" class="col-sm-4 control-label">生效日期</label>
+                            <div class="col-xs-8">
+                                <input id="docst" class="form-control" type="date">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="docen" class="col-sm-4 control-label">失效日期</label>
+                            <div class="col-xs-8">
+                                <input id="docen" class="form-control" type="date">
+                            </div>
+                        </div>
+                        <label id="doci" style="display: none">a</label>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default" onclick="saveDoc()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+{% endblock %}
+
+{% block js %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/i18n/defaults-zh_CN.min.js"></script>
+
+    <script>
+        var $table = $('#table'),
+            $datilTbl = $('#datilTbl'),
+            $jiaoTbl = $('#jtable');
+
+        function initTable() {
+            $table.bootstrapTable({
+                url: '/carinfo/getCarls/',
+                undefinedText: '<a title="点击添加资料"><i class="icon-plus-sign-alt"></i></a> ',
+                columns: [[
+                    {
+                        field: 'ddd',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        events: operateEvents,
+                        formatter: operateFormatter
+                    }, {
+                        field: 'state',
+                        checkbox: true,
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle'
+                    }, {
+                        field: 'car_id',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '编号'
+                    }, {
+                        field: 'car_name',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车辆型号'
+                    }, {
+                        field: 'series_price',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '指导价'
+                    }, {
+                        field: 'car_num',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车牌号'
+                    }, {
+                        field: 'car_color_d',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '颜色'
+                    }, {
+                        field: 'dpt_name',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '归属部门'
+                    }, {
+                        field: 'sit_name',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '停放场地'
+                    }, {
+                        field: 'cust_name',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '客户'
+                    }, {
+                        field: 'car_st_desc',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '当前状态'
+                    }, {
+                        title: '资料办理情况汇总',
+                        colspan: 12,
+                        align: 'center'
+                    }], [{
+                    field: 'have_invo',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否取得发票？',
+                    title: '发'
+                }, {
+                    field: 'have_hege',
+                    align: 'center',
+                    width: 5,
+                    valign: 'middle',
+                    titleTooltip: '是否取得合格证？',
+                    title: '合'
+                }, {
+                    field: 'have_baoyang',
+                    align: 'center',
+                    width: 5,
+                    valign: 'middle',
+                    titleTooltip: '是否取得保养手册？',
+                    title: '养'
+                }, {
+                    field: 'have_shuom',
+                    align: 'center',
+                    width: 5,
+                    titleTooltip: '是否取得说明书？',
+                    valign: 'middle',
+                    title: '明'
+                }, {
+                    field: 'have_yizhix',
+                    align: 'center',
+                    width: 5,
+                    titleTooltip: '是否取得一致性证明书？',
+                    valign: 'middle',
+                    title: '一'
+                }, {
+                    field: 'have_shangx',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否购买了商业保险？',
+                    title: '险'
+                }, {
+                    field: 'have_jiaoq',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否购买了交强险？',
+                    title: '强'
+                }, {
+                    field: 'have_shui',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否购买购置税？',
+                    title: '税'
+                }, {
+                    field: 'have_gps',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否安装了GPS？',
+                    title: 'G'
+                }, {
+                    field: 'have_xzu',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否购买了信租险？',
+                    title: '信'
+                }, {
+                    field: 'have_vin',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '车辆识别码',
+                    title: '识'
+                }, {
+                    field: 'have_ein',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '发动机号',
+                    title: '动'
+                }]]
+            });
+
+            $table.on('check.bs.table uncheck.bs.table ' +
+                'check-all.bs.table uncheck-all.bs.table', function () {
+                $('#jieche').prop('disabled', !$table.bootstrapTable('getSelections').length);
+                $('#ruku').prop('disabled', !$table.bootstrapTable('getSelections').length);
+                $('#weixiu').prop('disabled', !$table.bootstrapTable('getSelections').length);
+            });
+
+            $('#jieche').click(function () {
+                var ids = JSON.stringify(getIdSelections());
+                var sta = 2;
+                chgsta(ids, sta);
+            });
+
+            $('#ruku').click(function () {
+                var ids = JSON.stringify(getIdSelections());
+                var sta = 3;
+                chgsta(ids, sta);
+            });
+
+            $('#weixiu').click(function () {
+                var ids = JSON.stringify(getIdSelections());
+                var sta = 9;
+                chgsta(ids, sta);
+            });
+
+            function chgsta(ids, sta) {
+                $.ajax({
+                    type: 'get',
+                    url: '/carinfo/sndJc/',
+                    dataType: 'json',
+                    data: {
+                        'dcar_id': ids,
+                        'dcar_sta': sta
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $table.bootstrapTable('refresh')
+                                if (sta == 2) {
+                                    alert('接车成功，请安排上牌！')
+                                }
+                                if (sta == 3) {
+                                    alert('入库成功，请安排交车！')
+                                }
+                                if (sta == 9) {
+                                    alert('送修成功！')
+                                }
+                            } else {
+                                alert('出错，请联系管理员！')
+                            }
+                        })
+                    }
+                });
+                $('#jieche').prop('disabled', true);
+                $('#ruku').prop('disabled', true);
+                $('#weixiu').prop('disabled', true);
+            };
+
+            $table.on('click-cell.bs.table', function (e, field, value, row, $element) {
+                if (field == 'car_num') {
+                    document.getElementById('carnumtitle').innerText = row.car_id;
+                    $('#provInput').selectpicker('val', '粤');
+                    $('#alInput').selectpicker('val', 'E');
+                    document.getElementById('carnum').value='';
+                    $('#addCarnum').modal({
+                        backdrop: false,
+                        keyboard: false
+                    })
+                }
+
+                if (field == 'car_color_d') {
+                    document.getElementById('carnum3').innerText = row.car_id;
+                    $('#colorInput').selectpicker('val', value);
+                    $('#addColor').modal({
+                        backdrop: false,
+                        keyboard: false
+                    })
+                }
+
+                if (field == 'dpt_name') {
+                    document.getElementById('carnum4').innerText = row.car_id;
+                    $('#dptInput').selectpicker('val', '');
+                    $('#addDpt').modal({
+                        backdrop: false,
+                        keyboard: false
+                    })
+                }
+
+                if (field == 'sit_name') {
+                    document.getElementById('carnum5').innerText = row.car_id;
+                    $('#sitInput').selectpicker('val', '');
+                    $('#addSit').modal({
+                        backdrop: false,
+                        keyboard: false
+                    })
+                }
+
+                if (field == 'cust_name') {
+                    document.getElementById('carnum7').innerText = row.car_id;
+                    $('#custInput').selectpicker('val', '');
+                    $('#addCust').modal({
+                        backdrop: false,
+                        keyboard: false
+                    })
+                }
+
+                docar = ["have_hege", "have_invo", "have_baoyang", "have_shuom", "have_yizhix", "have_shangx", "have_shui", "have_xzu", "have_gps", "have_jiaoq", "have_vin", "have_ein"];
+                docdsc = ["合格证", "发票", "保养手册", "说明书", "一致性证明", "商业保险", "购置税", "信租失联险", "GPS", "交强险", "车辆识别码", "发动机号"]
+                isin = false;
+                for (x in docar) {
+                    if (field == docar[x]) {
+                        isin = true;
+                        break;
+                    }
+                }
+                if (isin) {
+                    document.getElementById('carnum6').innerText = row.car_id;
+                    document.getElementById('docty').value= '';
+                    document.getElementById('doct').innerText = '请输入 <' + docdsc[x] + '> 资料信息';
+                    x=parseInt(x)+1;
+                    document.getElementById('doci').innerText = x;
+                    $('#addDoc').modal({
+                        backdrop: false,
+                        keyboard: false
+                    })
+                }
+            });
+
+            $jiaoTbl.bootstrapTable({
+                url: '/carinfo/getCarls/',
+                columns: [
+                    {
+                        field: 'ddd',
+                        align: 'center',
+                        valign: 'middle',
+                        events: operateEvents,
+                        formatter: operateFormatter
+                    }, {
+                        field: 'car_id',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '编号'
+                    }, {
+                        field: 'car_name',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车辆型号'
+                    },{
+                        field: 'car_color_d',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '颜色'
+                    },   {
+                        field: 'car_num',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车牌号'
+                    }, {
+                        field: 'cust_name',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '客户'
+                    }, {
+                        field: 'car_ht',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '合同编号'
+                    }, {
+                        field: 'car_jcrq',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '交车日期'
+                    }]
+            });
+        }
+
+        function saveDpt() {
+            if ($('#dptInput').selectpicker('val') < 1) {
+                alert('请选择车辆归属部门');
+            } else {
+                $.ajax({
+                    type: 'get',
+                    url: '/saveDpt/',
+                    dataType: 'json',
+                    data: {
+                        'dcar_id': document.getElementById('carnum4').innerText,
+                        'dcar_dpt': $('#dptInput').selectpicker('val')
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $table.bootstrapTable('refresh');
+                                $('#addDpt').modal('hide');
+                            } else {
+                                alert('修改车辆归属部门出错，请联系管理员！')
+                            }
+                        })
+                    }
+                })
+            }
+        }
+
+        function saveSit() {
+            if ($('#sitInput').selectpicker('val') < 1) {
+                alert('请选择车辆停放场地');
+            } else {
+                $.ajax({
+                    type: 'get',
+                    url: '/saveSit/',
+                    dataType: 'json',
+                    data: {
+                        'dcar_id': document.getElementById('carnum5').innerText,
+                        'dcar_sit': $('#sitInput').selectpicker('val')
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $table.bootstrapTable('refresh');
+                                $('#addSit').modal('hide');
+                            } else {
+                                alert('修改车辆停放场地出错，请联系管理员！')
+                            }
+                        })
+                    }
+                })
+            }
+        }
+
+        function saveCust() {
+            if ($('#custInput').selectpicker('val') < 1) {
+                alert('请选择交车客户');
+            } else {
+                $.ajax({
+                    type: 'get',
+                    url: '/custinfo/dapCust/',
+                    dataType: 'json',
+                    data: {
+                        'dcar_id': document.getElementById('carnum7').innerText,
+                        'dcar_cust': $('#custInput').selectpicker('val'),
+                        'dcar_cont': document.getElementById('contract').value
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $table.bootstrapTable('refresh');
+                                $('#addCust').modal('hide');
+                            } else {
+                                alert('选择交车客户出错，请联系管理员！')
+                            }
+                        })
+                    }
+                })
+            }
+        }
+
+        function saveColor() {
+            if ($('#colorInput').selectpicker('val') < 1) {
+                alert('请选择车身颜色');
+            } else {
+                $.ajax({
+                    type: 'get',
+                    url: '/saveColor/',
+                    dataType: 'json',
+                    data: {
+                        'dcar_id': document.getElementById('carnum3').innerText,
+                        'dcar_color': $('#colorInput').selectpicker('val')
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $table.bootstrapTable('refresh');
+                                $('#addColor').modal('hide');
+                            } else {
+                                alert('修改车辆颜色出错，请联系管理员！')
+                            }
+                        })
+                    }
+                })
+            }
+        }
+
+        function savNum() {
+            if (document.getElementById('carnum').value == '') {
+                alert('请输入车牌号');
+            } else {
+                $.ajax({
+                    type: 'get',
+                    url: '/sndCarnum/',
+                    dataType: 'json',
+                    data: {
+                        'dcar_id': document.getElementById('carnumtitle').innerText,
+                        'dcar_qq': $('#provInput').selectpicker('val') + $('#alInput').selectpicker('val'),
+                        'dcar_num': document.getElementById('carnum').value
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $table.bootstrapTable('refresh');
+                                $('#addCarnum').modal('hide');
+                            } else {
+                                alert('添加车牌出错，请联系管理员！')
+                            }
+                        })
+                    }
+                })
+            }
+        }
+
+        function saveDoc() {
+            if (document.getElementById('docty').value == '') {
+                alert('请输入资料编号');
+            } else {
+                $.ajax({
+                    type: 'get',
+                    url: '/sndDoc/',
+                    dataType: 'json',
+                    data: {
+                        'dcar_id': document.getElementById('carnum6').innerText,
+                        'dcar_ty': document.getElementById('doci').innerText,
+                        'dcar_dnum': document.getElementById('docty').value,
+                        'dcar_star': document.getElementById('docst').value,
+                        'dcar_end': document.getElementById('docen').value,
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $table.bootstrapTable('refresh');
+                                $('#addDoc').modal('hide');
+                            } else {
+                                alert('添加车辆资料出错，请联系管理员！')
+                            }
+                        })
+                    }
+                })
+            }
+        }
+
+        $('#dptInput').on('loaded.bs.select', function (e) {
+            $.ajax({
+                type: 'get',
+                url: '/getDpt/',
+                dataType: 'json',
+                success: function (data) {
+                    $('#dptInput').html("");
+                    $('#dptInput').append("<option value=''>-- 请选择 --</option>");
+                    $.each(data, function (i, n) {
+                        $('#dptInput').append("<option value='" + n.id + "'>" + n.name + "</option>");
+                    });
+                    $('#dptInput').selectpicker('refresh');
+                }
+            })
+        });
+
+        $('#sitInput').on('loaded.bs.select', function (e) {
+            $.ajax({
+                type: 'get',
+                url: '/getSit/',
+                dataType: 'json',
+                success: function (data) {
+                    $('#sitInput').html("");
+                    $('#sitInput').append("<option value=''>-- 请选择 --</option>");
+                    $.each(data, function (i, n) {
+                        $('#sitInput').append("<option value='" + n.id + "'>" + n.name + "</option>");
+                    });
+                    $('#sitInput').selectpicker('refresh');
+                }
+            })
+        });
+
+        $('#custInput').on('show.bs.select', function (e) {
+            $.ajax({
+                type: 'get',
+                url: '/custinfo/getCust/',
+                dataType: 'json',
+                success: function (data) {
+                    $('#custInput').html("");
+                    $('#custInput').append("<option value=''>-- 请选择 --</option>");
+                    $.each(data, function (i, n) {
+                        $('#custInput').append("<option value='" + n.id + "'>" + n.name + "</option>");
+                    });
+                    $('#custInput').selectpicker('refresh');
+                }
+            })
+        });
+
+        $('#colorInput').on('loaded.bs.select', function (e) {
+            $.ajax({
+                type: 'get',
+                url: '/getColor/',
+                dataType: 'json',
+                success: function (data) {
+                    $('#colorInput').html("");
+                    $('#colorInput').append("<option value=''>-- 请选择 --</option>");
+                    $.each(data, function (i, n) {
+                        $('#colorInput').append("<option value='" + n.id + "'>" + n.name + "</option>");
+                    });
+                    $('#colorInput').selectpicker('refresh');
+                }
+            })
+        });
+
+        $('#brandInput').on('loaded.bs.select', function (e) {
+            $.ajax({
+                type: 'get',
+                url: '/getBrand/',
+                dataType: 'json',
+                success: function (data) {
+                    $('#brandInput').html("");
+                    $('#brandInput').append("<option value=''>-- 请选择 --</option>");
+                    $.each(data, function (i, n) {
+                        $('#brandInput').append("<option value='" + n.id + "'>" + n.name + "</option>");
+                    });
+                    $('#brandInput').selectpicker('refresh');
+                }
+            })
+        });
+
+        $('#brandInput').on('changed.bs.select', function (e) {
+            $('#prodInput').html("");
+            $('#seriesInput').html("");
+            $('#prodInput').selectpicker('refresh');
+            $('#seriesInput').selectpicker('refresh');
+        });
+
+        $('#prodInput').on('changed.bs.select', function (e) {
+            $('#seriesInput').html("");
+            $('#seriesInput').selectpicker('refresh');
+        });
+
+        $('#prodInput').on('show.bs.select', function (e) {
+            if ($('#brandInput').selectpicker('val') > 0) {
+                $.ajax({
+                    type: 'get',
+                    url: '/getProd/',
+                    dataType: 'json',
+                    data: {'brand_sel': $('#brandInput').selectpicker('val')},
+                    success: function (data) {
+                        $('#prodInput').empty();
+                        $('#prodInput').append("<option value=''>-- 请选择 --</option>");
+                        $.each(data, function (i, n) {
+                            $('#prodInput').append("<option value='" + n.id + "'>" + n.name + "</option>");
+                        });
+                        $('#prodInput').selectpicker('refresh');
+                    }
+                })
+            }
+        });
+
+        $('#seriesInput').on('show.bs.select', function (e) {
+            if ($('#prodInput').selectpicker('val') > 0) {
+                $.ajax({
+                    type: 'get',
+                    url: '/getSeries/',
+                    dataType: 'json',
+                    data: {
+                        'brand_sel': $('#brandInput').selectpicker('val'),
+                        'prod_sel': $('#prodInput').selectpicker('val'),
+                    },
+                    success: function (data) {
+                        $('#seriesInput').html("");
+                        $('#seriesInput').append("<option value=''>-- 请选择 --</option>");
+                        $.each(data, function (i, n) {
+                            $('#seriesInput').append("<option value='" + n.id + "'>" + n.name + "</option>");
+                        });
+                        $('#seriesInput').selectpicker('refresh');
+                    }
+                })
+            }
+        });
+
+        function carsBuy() {
+            if (($('#brandInput').selectpicker('val') < 1) ||
+                ($('#prodInput').selectpicker('val') < 1) ||
+                ($('#seriesInput').selectpicker('val') < 1)) {
+                alert('请先选择采购车辆型号！');
+            } else {
+                $.ajax({
+                    type: 'get',
+                    url: '/carsBuy/',
+                    dataType: 'json',
+                    data: {
+                        'brand_sel': $('#brandInput').selectpicker('val'),
+                        'prod_sel': $('#prodInput').selectpicker('val'),
+                        'series_sel': $('#seriesInput').selectpicker('val'),
+                        'cars_num': document.getElementById('carsnum').value
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $table.bootstrapTable('refresh');
+                                alert('已添加采购车辆，请查看！')
+                            } else {
+                                alert('添加采购车辆出错，请联系管理员！')
+                            }
+                        })
+                    }
+                })
+            }
+        }
+
+        function operateFormatter(value, row, index) {
+            return [
+                '<a class="deTail" href="javascript:void(0)" title="点击查看详细资料">',
+                '<i class="icon-fullscreen" id="aa' + index + '"></i>',
+                '</a>  ',
+            ].join('');
+        }
+
+        window.operateEvents = {
+            'click .deTail': function (e, value, row, index) {
+                $.ajax({
+                    type: 'get',
+                    url: '/getDatil/',
+                    dataType: 'json',
+                    data: {
+                        'dcar_id': row.car_id
+                    },
+                    success: function (data) {
+                        $datilTbl.bootstrapTable('load', data);
+                    }
+                });
+                $('#dspDetail').modal({
+                    keyboard: false
+                });
+            },
+            'mouseenter .deTail': function (e, value, row, index) {
+                obj = '#aa' + index;
+                $(obj).attr('class', 'icon-fullscreen icon-spin');
+            },
+            'mouseleave .deTail': function (e, value, row, index) {
+                obj = '#aa' + index;
+                $(obj).attr('class', 'icon-fullscreen');
+            }
+        };
+
+        function getIdSelections() {
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.car_id;
+            });
+        }
+
+        function cPara1(params) {
+            params.lstty = 1;
+            return params;
+        }
+
+        function cPara2(params) {
+            params.lstty = 2;
+            return params;
+        }
+
+        $(function () {
+            initTable();
+        });
+
+
+    </script>
+
+
+{% endblock %}

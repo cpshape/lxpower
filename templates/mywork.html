@@ -1,0 +1,816 @@
+{% extends 'base.html' %}
+{% block title %}个人{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+{% endblock %}
+
+{% block content %}
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion"
+                                           href="#collapseTwo">部门待分配车辆</a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table id="mycarTbl"
+                           class="table table-hover table-sm table-condensed"
+                           data-method="get"
+                           data-height="520"
+                           data-side-pagination="server"
+                           data-pagination="true"
+                           data-page-size="10"
+                           data-page-list="[5, 10, 50]"
+                           data-query-params="qPara1"
+                    >
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion"
+                                           href="#collapseOne">我的跟进客户</a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="toolbar">
+                        <button id="newC" class="btn btn-info" onclick="showNewc()">
+                            <i class="icon-bolt"></i> 添加
+                        </button>
+
+                        <button id="canC" class="btn btn-info" onclick="canCust()" disabled>
+                            <i class="icon-external-link"></i> 挂起
+                        </button>
+
+                    </div>
+                    <table id="myTbl"
+                           class="table table-hover table-sm table-condensed"
+                           data-method="get"
+                           data-height="520"
+                           data-toolbar="#toolbar"
+                           data-side-pagination="server"
+                           data-pagination="true"
+                           data-page-size="10"
+                           data-page-list="[5, 10, 50]"
+                           data-query-params="qPara1"
+                    >
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion"
+                                           href="#collapseThree">我的已交车客户</a>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table id="myjTbl"
+                           class="table table-hover table-sm table-condensed"
+                           data-method="get"
+                           data-height="520"
+                           data-side-pagination="server"
+                           data-pagination="true"
+                           data-page-size="10"
+                           data-page-list="[5, 10, 50]"
+                           data-query-params="qPara2"
+                    >
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion"
+                                           href="#collapseFour">我的挂起客户</a>
+                </h4>
+            </div>
+            <div id="collapseFour" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table id="mygTbl"
+                           class="table table-hover table-sm table-condensed"
+                           data-method="get"
+                           data-height="520"
+                           data-side-pagination="server"
+                           data-pagination="true"
+                           data-page-size="10"
+                           data-page-list="[5, 10, 50]"
+                           data-query-params="qPara3"
+                    >
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addNewc" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="badge pull-right">新!</span>
+                    <h4 class="modal-title">新意向客户</h4>
+                </div>
+
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+
+                        <div class="form-group">
+                            <label for="cName" class="col-sm-3 control-label">姓名</label>
+                            <div class="col-xs-9">
+                                <input id="cName" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cell1" class="col-sm-3 control-label">电话一</label>
+                            <div class="col-xs-9">
+                                <input id="cell1" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cell2" class="col-sm-3 control-label">电话二</label>
+                            <div class="col-xs-9">
+                                <input id="cell2" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default" onclick="saveCust()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="dcsDetail" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">客户处理日志</h4>
+                </div>
+                <div class="modal-body">
+                    <table id="cdtlTbl"
+                           data-toggle="table"
+                           class="table table-hover table-sm table-condensed"
+                    >
+                        <thead>
+                        <tr>
+                            <th data-field="c_item" data-align="center" datavalign="middle" data-width="5">序号</th>
+                            <th data-field="c_desc" datavalign="middle" data-align="left">描述</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">关闭</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="dspDetail" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">车辆详细信息</h4>
+                </div>
+                <div class="modal-body">
+                    <table id="datilTbl"
+                           data-toggle="table"
+                           class="table table-hover table-sm table-condensed"
+                    >
+                        <thead>
+                        <tr>
+                            <th data-field="d_name" data-align="center" datavalign="middle" data-width="80">名称</th>
+                            <th data-field="d_item" data-align="center" datavalign="middle" data-width="5">序号</th>
+                            <th data-field="d_desc" datavalign="middle" data-align="left">描述</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">关闭</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+{% endblock %}
+
+{% block js %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/i18n/defaults-zh_CN.min.js"></script>
+
+    <script>
+        var $mytable = $('#myTbl'),
+            $myjtable = $('#myjTbl'),
+            $mygtable = $('#mygTbl'),
+            $myctable = $('#mycarTbl'),
+            $datilTbl = $('#datilTbl'),
+            $cdtlTbl = $('#cdtlTbl');
+
+        function initTable() {
+            $mytable.bootstrapTable({
+                url: '/custinfo/getCstls/',
+                columns: [
+                    {
+                        field: 'ddd',
+                        align: 'center',
+                        valign: 'middle',
+                        events: operateEvents,
+                        formatter: operateFormatter
+                    }, {
+                        field: 'ischeck',
+                        checkbox: true,
+                        align: 'center',
+                        valign: 'middle'
+                    }, {
+                        field: 'cust_id',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '编号'
+                    }, {
+                        field: 'cust_name',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '姓名'
+                    }, {
+                        field: 'cust_tel1',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话一'
+                    }, {
+                        field: 'cust_tel2',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话二'
+                    }, {
+                        field: 'cust_staff',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '跟单专员'
+                    }, {
+                        field: 'cust_sta',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '当前状态'
+                    }, {
+                        field: 'cust_data',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '建档日期'
+                    }, {
+                        field: 'operate',
+                        title: '操作',
+                        align: 'center',
+                        events: custEvents,
+                        formatter: custFormatter
+                    }]
+            });
+
+            $mytable.on('check.bs.table uncheck.bs.table ' +
+                'check-all.bs.table uncheck-all.bs.table', function () {
+                $('#canC').prop('disabled', !$mytable.bootstrapTable('getSelections').length);
+            });
+
+            $myjtable.bootstrapTable({
+                url: '/custinfo/getCstls/',
+                columns: [
+                    {
+                        field: 'ddd',
+                        align: 'center',
+                        valign: 'middle',
+                        events: operateEvents,
+                        formatter: operateFormatter
+                    }, {
+                        field: 'cust_id',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '编号'
+                    }, {
+                        field: 'cust_name',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '姓名'
+                    }, {
+                        field: 'cust_tel1',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话一'
+                    }, {
+                        field: 'cust_tel2',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话二'
+                    }, {
+                        field: 'cust_staff',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '跟单专员'
+                    }, {
+                        field: 'cust_car_id',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车辆编号'
+                    }, {
+                        field: 'cust_car',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车牌'
+                    }, {
+                        field: 'cust_cont',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '合同号'
+                    }, {
+                        field: 'cust_car_date',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '交车日期'
+                    }, {
+                        field: 'cust_data',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '建档日期'
+                    }]
+            });
+
+            $mygtable.bootstrapTable({
+                url: '/custinfo/getCstls/',
+                columns: [
+                    {
+                        field: 'ddd',
+                        align: 'center',
+                        valign: 'middle',
+                        events: operateEvents,
+                        formatter: operateFormatter
+                    }, {
+                        field: 'cust_id',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '编号'
+                    }, {
+                        field: 'cust_name',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '姓名'
+                    }, {
+                        field: 'cust_tel1',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话一'
+                    }, {
+                        field: 'cust_tel2',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话二'
+                    }, {
+                        field: 'cust_staff',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '跟单专员'
+                    }, {
+                        field: 'cust_gdate',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '挂起日期'
+                    }, {
+                        field: 'cust_data',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '建档日期'
+                    }, {
+                        field: 'operate',
+                        title: '操作',
+                        align: 'center',
+                        events: guaEvents,
+                        formatter: guaFormatter
+                    }]
+            });
+
+            $myctable.bootstrapTable({
+                url: '/carinfo/getCarls/',
+                columns: [[
+                    {
+                        field: 'ddd',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        events: mycarEvents,
+                        formatter: mycarFormatter
+                    }, {
+                        field: 'car_id',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '编号'
+                    }, {
+                        field: 'car_name',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车辆型号'
+                    }, {
+                        field: 'series_price',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '指导价'
+                    }, {
+                        field: 'car_num',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '车牌号'
+                    }, {
+                        field: 'car_color_d',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '颜色'
+                    }, {
+                        field: 'dpt_name',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '归属部门'
+                    }, {
+                        field: 'sit_name',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '停放场地'
+                    }, {
+                        field: 'cust_name',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '客户'
+                    }, {
+                        field: 'car_st_desc',
+                        rowspan: 2,
+                        align: 'center',
+                        valign: 'middle',
+                        title: '当前状态'
+                    }, {
+                        title: '资料办理情况汇总',
+                        colspan: 12,
+                        align: 'center'
+                    }], [{
+                    field: 'have_invo',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否取得发票？',
+                    title: '发'
+                }, {
+                    field: 'have_hege',
+                    align: 'center',
+                    width: 5,
+                    valign: 'middle',
+                    titleTooltip: '是否取得合格证？',
+                    title: '合'
+                }, {
+                    field: 'have_baoyang',
+                    align: 'center',
+                    width: 5,
+                    valign: 'middle',
+                    titleTooltip: '是否取得保养手册？',
+                    title: '养'
+                }, {
+                    field: 'have_shuom',
+                    align: 'center',
+                    width: 5,
+                    titleTooltip: '是否取得说明书？',
+                    valign: 'middle',
+                    title: '明'
+                }, {
+                    field: 'have_yizhix',
+                    align: 'center',
+                    width: 5,
+                    titleTooltip: '是否取得一致性证明书？',
+                    valign: 'middle',
+                    title: '一'
+                }, {
+                    field: 'have_shangx',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否购买了商业保险？',
+                    title: '险'
+                }, {
+                    field: 'have_jiaoq',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否购买了交强险？',
+                    title: '强'
+                }, {
+                    field: 'have_shui',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否购买购置税？',
+                    title: '税'
+                }, {
+                    field: 'have_gps',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否安装了GPS？',
+                    title: 'G'
+                }, {
+                    field: 'have_xzu',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '是否购买了信租险？',
+                    title: '信'
+                }, {
+                    field: 'have_vin',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '车辆识别码',
+                    title: '识'
+                }, {
+                    field: 'have_ein',
+                    width: 5,
+                    align: 'center',
+                    valign: 'middle',
+                    titleTooltip: '发动机号',
+                    title: '动'
+                }]]
+            });
+
+        }
+
+        function showNewc() {
+            $('#addNewc').modal({
+                backdrop: false,
+                keyboard: false
+            })
+        }
+
+        function custFormatter(value, row, index) {
+            return [
+                '<a class="subS" href="javascript:void(0)" title="提交审批">',
+                '<i class=" icon-signin icon-large"></i>',
+                '</a>   ',
+                '<a  class="passS"  href="javascript:void(0)" title="审批通过">',
+                '<i class="icon-key icon-large"></i>',
+                '</a>  ',
+                '<a  class="rejS"  href="javascript:void(0)" title="审批拒绝">',
+                '<i class="icon-remove-sign icon-large"></i>',
+                '</a>  ',
+                '<a  class="runS"  href="javascript:void(0)" title="客户退单">',
+                '<i class="icon-reply icon-large"></i>',
+                '</a>'
+            ].join('');
+        }
+
+        window.custEvents = {
+            'click .subS': function (e, value, row, index) {
+                custid = row.cust_id;
+                sta = 2;
+                if ((row.cust_sta != '提交审批') && (row.cust_sta != '通过审批')) {
+                    submitS(custid, sta);
+                }
+            },
+
+            'click .passS': function (e, value, row, index) {
+                custid = row.cust_id;
+                sta = 3;
+                if (row.cust_sta == '提交审批') {
+                    submitS(custid, sta);
+                }
+            },
+
+            'click .rejS': function (e, value, row, index) {
+                custid = row.cust_id;
+                sta = 4;
+                if (row.cust_sta == '提交审批') {
+                    submitS(custid, sta);
+                }
+            },
+
+            'click .runS': function (e, value, row, index) {
+                custid = row.cust_id;
+                sta = 5;
+                submitS(custid, sta);
+            }
+        }
+
+        function guaFormatter(value, row, index) {
+            return [
+                '<a class="resubS" href="javascript:void(0)" title="重新激活">',
+                '<i class=" icon-magic icon-large"></i>',
+                '</a>   ',
+            ].join('');
+        }
+
+        window.guaEvents = {
+            'click .resubS': function (e, value, row, index) {
+                custid = row.cust_id;
+                sta = 1;
+                submitS(custid, sta);
+            }
+        }
+
+        function submitS(custid, sta) {
+            $.ajax({
+                type: 'get',
+                url: '/custinfo/submitS/',
+                dataType: 'json',
+                data: {
+                    'dcst_id': custid,
+                    'dcst_sta': sta,
+                },
+                success: function (data) {
+                    if (sta == 1) {
+                        alert('重新激活挂起客户！')
+                        $mygtable.bootstrapTable('refresh')
+                    }
+                    $mytable.bootstrapTable('refresh');
+
+                }
+            });
+        }
+
+        function saveCust() {
+            if (document.getElementById('cName').value == '') {
+                alert('请输入客户姓名');
+            } else {
+                $.ajax({
+                    type: 'get',
+                    url: '/custinfo/saveCust/',
+                    dataType: 'json',
+                    data: {
+                        'dcst_tye': 1,
+                        'dcst_name': document.getElementById('cName').value,
+                        'dcst_tel1': document.getElementById('cell1').value,
+                        'dcst_tel2': document.getElementById('cell2').value
+                    },
+                    success: function (data) {
+                        $.each(data, function (i, n) {
+                            if (n.status == 'ok') {
+                                $mytable.bootstrapTable('refresh');
+                                $('#addNewc').modal('hide');
+                            } else {
+                                alert('添加客户出错，请联系管理员！')
+                            }
+                        })
+                    }
+                })
+            }
+        }
+
+        function canCust() {
+            var ids = JSON.stringify(getIdSelections())
+            $.ajax({
+                type: 'get',
+                url: '/custinfo/saveGua/',
+                dataType: 'json',
+                data: {
+                    'dcar_id': ids,
+                    'dcar_sta': 7
+                },
+                success: function (data) {
+                    $.each(data, function (i, n) {
+                        if (n.status == 'ok') {
+                            $mytable.bootstrapTable('refresh')
+                            $mygtable.bootstrapTable('refresh')
+                            alert('挂起客户成功！')
+                        } else {
+                            alert('出错，请联系管理员！')
+                        }
+                    })
+                }
+            });
+            $('#canC').prop('disabled', true);
+        }
+
+        function getIdSelections() {
+            return $.map($mytable.bootstrapTable('getSelections'), function (row) {
+                return row.cust_id;
+            });
+        }
+
+        function qPara1(params) {
+            params.lstty = 1;
+            return params;
+        }
+
+        function qPara2(params) {
+            params.lstty = 2;
+            return params;
+        }
+
+        function qPara3(params) {
+            params.lstty = 3;
+            return params;
+        }
+
+
+        function operateFormatter(value, row, index) {
+            return [
+                '<a class="cstTail" href="javascript:void(0)" title="点击查看处理日志">',
+                '<i class="icon-fullscreen" id="bb' + index + '"></i>',
+                '</a>',
+            ].join('');
+        }
+
+        window.operateEvents = {
+            'click .cstTail': function (e, value, row, index) {
+                $.ajax({
+                    type: 'get',
+                    url: '/custinfo/getCstlog/',
+                    dataType: 'json',
+                    data: {
+                        'dcust_id': row.cust_id
+                    },
+                    success: function (data) {
+                        $cdtlTbl.bootstrapTable('load', data);
+                    }
+                })
+                ;
+                $('#dcsDetail').modal({
+                    keyboard: false
+                });
+            },
+            'mouseenter .cstTail': function (e, value, row, index) {
+                obj = '#bb' + index;
+                $(obj).attr('class', 'icon-fullscreen icon-spin');
+            },
+            'mouseleave .cstTail': function (e, value, row, index) {
+                obj = '#bb' + index;
+                $(obj).attr('class', 'icon-fullscreen');
+            }
+        };
+
+
+        function mycarFormatter(value, row, index) {
+            return [
+                '<a class="deTail" href="javascript:void(0)" title="点击查看详细资料">',
+                '<i class="icon-fullscreen" id="aa' + index + '"></i>',
+                '</a>  ',
+            ].join('');
+        }
+
+        window.mycarEvents = {
+            'click .deTail': function (e, value, row, index) {
+                $.ajax({
+                    type: 'get',
+                    url: '/getDatil/',
+                    dataType: 'json',
+                    data: {
+                        'dcar_id': row.car_id
+                    },
+                    success: function (data) {
+                        $datilTbl.bootstrapTable('load', data);
+                    }
+                });
+                $('#dspDetail').modal({
+                    keyboard: false
+                });
+            },
+            'mouseenter .deTail': function (e, value, row, index) {
+                obj = '#aa' + index;
+                $(obj).attr('class', 'icon-fullscreen icon-spin');
+            },
+            'mouseleave .deTail': function (e, value, row, index) {
+                obj = '#aa' + index;
+                $(obj).attr('class', 'icon-fullscreen');
+            }
+        };
+        $(function () {
+            initTable();
+        });
+
+
+    </script>
+{% endblock %}

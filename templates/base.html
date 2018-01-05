@@ -1,0 +1,169 @@
+{%  load staticfiles %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+     <link rel="stylesheet" href="{% static  'css/font-awesome.min.css' %}">
+     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <title>{% block title %}base{% endblock %}</title>
+     {% block css %}{% endblock %}
+  </head>
+  <body>
+
+  <nav class="navbar navbar-default" style="background-color: #EED2EE; color: #0000ff">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+        <a class="navbar-brand"><big><font color=#800000>LXPower</font></big></a>
+
+    </div>
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        {% if request.session.is_login %}
+            <li >  <a> <i class="icon-user icon-large" onclick="chgPwd()"></i> {{ request.session.user_name }} </a>  </li>
+        {% endif %}
+
+      </ul>
+     <ul class="nav navbar-nav navbar-right">
+       {% if request.session.is_login %}
+           {% block nitem %}  {% endblock %}
+          <li>  <a href="/general/">概况</a> </li>
+          {% if request.session.user_role == 0 %}
+                 <li>  <a href="/mywork/">我的</a> </li>
+           {% endif %}
+
+           {% if request.session.user_role == 1 %}
+                 <li>  <a href="/carinfo/">车辆详情</a> </li>
+           {% endif %}
+
+           {% if request.session.user_role == 2 %}
+                 <li>  <a href="/carinfo/">车辆详情</a> </li>
+                 <li>  <a href="/custinfo/">客户详情</a> </li>
+           {% endif %}
+
+
+          <li>  <a href="/logout/">登出</a> </li>
+       {% else %}
+          <li>   <a href="/login/">登录</a>  </li>
+       {% endif %}
+
+     </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+  </nav>
+
+  <div class="modal fade" id="chgPass" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">修改密码</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form class="form-horizontal">
+
+                    <div class="form-group">
+                        <label for="inputName" class="col-sm-5 control-label">旧密码</label>
+                        <div class="col-xs-7">
+                            <input type="password" class="form-control" id="oldPass"  >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputTel1" class="col-sm-5 control-label">新密码</label>
+                        <div class="col-xs-7">
+                            <input type="password" class="form-control" id="newPass1"  >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputTel2" class="col-sm-5 control-label">重输新密码</label>
+                        <div class="col-xs-7">
+                            <input type="password" class="form-control" id="newPass2"  >
+                        </div>
+                    </div>
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                     <button type="button" class="btn btn-default pull-left"  data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default" onclick="savePwd()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+  {% block content %}{% endblock %}
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.13.0-next.1/esm/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script>
+        function chgPwd() {
+            $('#chgPass').modal({
+                backdrop: false,
+                keyboard: false
+            })
+        }
+
+        function savePwd(){
+            if ($('#newPass1').val() !=$('#newPass2').val()){
+                alert('两次输入新密码不相同')
+                return
+            }
+
+            if ($('#newPass1').val() ==$('#oldPass').val()){
+                alert('新密码和旧密码相同')
+                return
+            }
+            $.ajax({
+                type: 'get',
+                url: '/savePwd/',
+                dataType: 'json',
+                data:{'new_pwd':$('#newPass1').val(),
+                          'old_pwd':$('#oldPass').val()},
+                success: function (data) {
+                    $.each(data, function (i, n) {
+                         if (n.status=='ok') {
+                             alert('已修改密码！');
+                             $('#chgPass').modal('hide');
+                              $('#chgPass').location.reload();
+
+                         } else {
+                             if  (n.status=='pwd') {
+                                 alert('旧密码错误！')
+                             }
+                             else{
+                                 alert('修改密码出错，请联系管理员！')
+                                 }
+                             }
+                    })
+                 }
+            })
+        }
+
+    </script>
+    {% block js %}{% endblock %}
+  </body>
+</html>
