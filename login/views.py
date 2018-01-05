@@ -293,7 +293,6 @@ def dapCust(request):
     if not request.session.get('is_login', None):
         return redirect('/login/')
     response_data = [{'status': 'ok'}]
-    print('here')
     if request.method == "GET":
         try:
             with transaction.atomic():
@@ -561,8 +560,6 @@ def sndDoc(request):
     response_data = [{'status': 'ok'}]
     if request.method == "GET":
         seq = int(request.GET['dcar_ty']) + 1
-        print(seq)
-
         if request.GET['dcar_star'] == '':
             d_star = None
         else:
