@@ -4,7 +4,7 @@
 
 {% block css %}
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.min.css">
 {% endblock %}
 
 {% block content %}
@@ -50,6 +50,29 @@
             </div>
         </div>
     </div>
+
+     <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion"  href="#collapseThree">挂起客户</a>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table id="csgTbl"
+                           class="table table-hover table-sm table-condensed"
+                           data-method="get"
+                           data-height="520"
+                           data-side-pagination="server"
+                           data-pagination="true"
+                           data-page-size="10"
+                           data-page-list="[5, 10, 50]"
+                           data-query-params="qPara3"
+                    >
+                    </table>
+
+                </div>
+            </div>
+        </div>
 
     <div class="modal fade" id="renCoM" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-sm" role="document">
@@ -112,13 +135,14 @@
 {% block js %}
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/i18n/defaults-zh_CN.min.js"></script>
+    <script src="/static/js/bootstrap-select.min.js"></script>
+    <script src="/static/js/defaults-zh_CN.min.js"></script>
 
     <script>
         var $csttable = $('#cstTbl'),
             $myjtable = $('#myjTbl'),
-         $cdtlTbl = $('#cdtlTbl');
+         $cdtlTbl = $('#cdtlTbl'),
+          $csgTbl=$('#csgTbl');
 
         function initTable() {
             $csttable.bootstrapTable({
@@ -235,6 +259,59 @@
                         title: '建档日期'
                     }]
             });
+
+            $csgTbl.bootstrapTable({
+                url: '/custinfo/getCstls/',
+                columns: [
+                    {
+                        field: 'ddd',
+                        align: 'center',
+                        valign: 'middle',
+                        events: operateEvents,
+                        formatter: operateFormatter
+                    }, {
+                        field: 'cust_id',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '编号'
+                    }, {
+                        field: 'cust_name',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '姓名'
+                    }, {
+                        field: 'cust_tel1',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话一'
+                    }, {
+                        field: 'cust_tel2',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '联系电话二'
+                    }, {
+                        field: 'cust_staff',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '跟单专员'
+                    }, {
+                        field: 'cust_gdate',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '挂起日期'
+                    }, {
+                        field: 'cust_data',
+                        align: 'center',
+                        valign: 'middle',
+                        title: '建档日期'
+                    }, {
+                        field: 'operate',
+                        title: '操作',
+                        align: 'center',
+                        events: guaEvents,
+                        formatter: guaFormatter
+                    }]
+            });
         }
 
         function custFormatter(value, row, index) {
@@ -336,6 +413,42 @@
         };
 
 
+        function guaFormatter(value, row, index) {
+            return [
+                '<a class="resubS" href="javascript:void(0)" title="重新激活">',
+                '<i class=" icon-magic icon-large"></i>',
+                '</a>   ',
+            ].join('');
+        }
+
+        window.guaEvents = {
+            'click .resubS': function (e, value, row, index) {
+                custid = row.cust_id;
+                sta = 1;
+                submitS(custid, sta);
+            }
+        }
+
+        function submitS(custid, sta) {
+            $.ajax({
+                type: 'get',
+                url: '/custinfo/submitS/',
+                dataType: 'json',
+                data: {
+                    'dcst_id': custid,
+                    'dcst_sta': sta,
+                },
+                success: function (data) {
+                    if (sta == 1) {
+                        alert('重新激活挂起客户！')
+                        $csgTbl.bootstrapTable('refresh')
+                    }
+                    $csttable.bootstrapTable('refresh');
+
+                }
+            });
+        }
+
         function qPara1(params) {
             params.lstty = 1;
             return params;
@@ -343,6 +456,11 @@
 
         function qPara2(params) {
             params.lstty = 2;
+            return params;
+        }
+
+        function qPara3(params) {
+            params.lstty = 3;
             return params;
         }
 

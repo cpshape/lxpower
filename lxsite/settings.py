@@ -24,6 +24,7 @@ SECRET_KEY = 'a653u2%bs#-51%k1gvtmbuu9_g%5q-6z4g@xf08abf96xhiiyb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+TEMPLATE_DEBUG = False
 
 # Application definition
 
